@@ -22,3 +22,5 @@ CREATE TABLE games(
     Foreign Key (opponent_id) 
     REFERENCES teams(team_id)
 );
+
+INSERT INTO games(game_id, year, round, winner, opponent) VALUES(2018, 'Final', 'France', 'Croatia',4,2)
