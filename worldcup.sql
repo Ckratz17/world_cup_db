@@ -4,23 +4,6 @@ CREATE DATABASE worldcup;
 
 \c worldcup;
 
-CREATE TABLE teams(
-    team_id SERIAL PRIMARY KEY, 
-    name VARCHAR(50) UNIQUE
-);
+CREATE TABLE teams(team_id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL UNIQUE);
 
-CREATE TABLE games(
-    game_id SERIAL PRIMARY KEY, 
-    year INT NOT NULL, 
-    round VARCHAR(20) NOT NULL,
-    winner_id INT NOT NULL,
-    opponent_id INT NOT NULL,
-    winner_goals INT NOT NULL,
-    opponent_goals INT NOT NULL,
-    Foreign Key (winner_id) 
-    REFERENCES teams(team_id),
-    Foreign Key (opponent_id) 
-    REFERENCES teams(team_id)
-);
-
-INSERT INTO games(game_id, year, round, winner, opponent) VALUES(2018, 'Final', 'France', 'Croatia',4,2)
+CREATE TABLE games(game_id SERIAL PRIMARY KEY, year INT NOT NULL, round VARCHAR(20) NOT NULL, winner_id INT NOT NULL, opponent_id INT NOT NULL, winner_goals INT NOT NULL, opponent_goals INT NOT NULL, Foreign Key (winner_id) REFERENCES teams(team_id),Foreign Key (opponent_id) REFERENCES teams(team_id));

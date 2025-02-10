@@ -1,68 +1,43 @@
-# PSQL="psql -X --username=postgres --dbname=worldcup --no-align --tuples-only -c"
+PSQL="psql -X --username=freecodecamp --dbname=worldcup --no-align --tuples-only -c"
 
-# echo $($PSQL "TRUNCATE students, majors, courses, majors_courses")
+echo $($PSQL "TRUNCATE teams, games")
+# Do not change code above this line. Use the PSQL variable above to query your database.
+PSQL="psql -X --username=freecodecamp --dbname=worldcup --no-align --tuples-only -c"
 
-# cat games.csv | while IFS="," read YEAR ROUND WINNER OPPONENT WINNERGOALS OPPENENTGOALS
-# do
-#   if [[ $YEAR != year ]]
-#     then
-#     # get major_id
-#     TEAM_ID=$($PSQL "SELECT game_id FROM games WHERE game=''")
-
-#     # if not found
-#     if [[ -z $MAJOR_ID ]]
-#       then
-#       # insert major
-#       INSERT_MAJOR_RESULT=$($PSQL "INSERT INTO majors(major) VALUES('$MAJOR')")
-
-#       if [[ $INSERT_MAJOR_RESULT == "INSERT 0 1" ]]
-#         then
-#         echo Inserted into majors, $MAJOR
-#       fi
-#       # get new major_id
-#       MAJOR_ID=$($PSQL "SELECT major_id FROM majors WHERE major='$MAJOR'")
-#     fi
-#   # insert major
-#   # get new major_id
-#   # get course_id
-#   COURSE_ID=$($PSQL "SELECT course_id FROM courses WHERE course='$COURSE'")
-#   echo $COURSE_ID
-#   # if not found
-#   if [[ -z $COURSE_ID ]]
-#     then
-#     # insert course
-#     INSERT_COURSE_RESULT=$($PSQL "INSERT INTO courses(course) VALUES('$COURSE')")
-#     if [[ $INSERT_COURSE_RESULT == "INSERT 0 1" ]]
-#       then
-#       echo Inserted into courses, $COURSE
-#     fi
-#     # get new course_id
-#     COURSE_ID=$($PSQL "SELECT course_id FROM courses WHERE course='$COURSE'")
-#   fi
-#   # insert into majors_courses
-#    INSERT_MAJORS_COURSES_RESULT=$($PSQL "INSERT INTO majors_courses(major_id, course_id) VALUES($MAJOR_ID, $COURSE_ID)")
-#   fi
-# done
-
-cat games.csv | while IFS="," read YEAR ROUND WINNER OPPONENT WINNERGOALS OPPENENTGOALS
+cat games.csv | while IFS="," read YEAR ROUND WINNER OPPONENT WINNERGOALS OPPONENTGOALS
 do
-  echo $WINNER $OPPONENT 
-  # if [[ $FIRST != first_name ]]
-  #   then
-  #   #get major_id
-  #   MAJOR_ID=$($PSQL "SELECT major_id FROM majors WHERE major='$MAJOR'")
-  #   #if not found
-  #   if [[ -z $MAJOR_ID ]]
-  #     then
-  #     #set to null
-  #     MAJOR_ID=null
-  #   fi
-  #   #insert student
-  #   INSERT_STUDENT_RESULT=$($PSQL "INSERT INTO students(first_name, last_name, major_id, gpa) VALUES('$FIRST', '$LAST', $MAJOR_ID, $GPA)")
+  # INSERT TEAMS INTO THE TEAM TABLE
+  if [[ $WINNER != winner ]]
+    then
+    WINNER_NAME=$($PSQL "SELECT DISTINCT(name) FROM teams WHERE name='$WINNER'")
+    OPPONENT_NAME=$($PSQL "SELECT DISTINCT(name) FROM teams WHERE name='$OPPONENT'")
+    if [[ -z $WINNER_NAME ]]
+      then
+      INSERT_TEAM_RESULT=$($PSQL "INSERT INTO teams(name) VALUES('$WINNER')")
+      if [[ $INSERT_TEAM_RESULT == "INSERT 0 1" ]]
+        then
+        echo Inserted into teams, $WINNER
+      fi
+    fi
+    if [[ -z $OPPONENT_NAME ]]
+      then
+      INSERT_TEAM_RESULT=$($PSQL "INSERT INTO teams(name) VALUES('$OPPONENT')")
+      if [[ $INSERT_TEAM_RESULT == "INSERT 0 1" ]]
+        then
+        echo Inserted into teams, $OPPONENT
+      fi
+    fi
 
-  #   if [[ $INSERT_STUDENT_RESULT == "INSERT 0 1" ]]
-  #     then
-  #     echo Inserted into students, $FIRST $LAST
-  #   fi
-  # fi
-done
+    WINNER_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WINNER'")
+    OPPONENT_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPPONENT'") 
+    GAME_ID=$($PSQL "SELECT game_id FROM games WHERE winner_id = $WINNER_ID AND opponent_id = $OPPONENT_ID")
+    if [[ -z $GAME_ID ]]
+     then
+      INSERT_GAME_RESULT=$($PSQL "INSERT INTO games(year, round, winner_id, opponent_id, winner_goals, opponent_goals) VALUES($YEAR, '$ROUND', $WINNER_ID, $OPPONENT_ID, $WINNERGOALS, $OPPONENTGOALS)")
+      if [[ $INSERT_GAME_RESULT == "INSERT 0 1" ]]
+          then
+          echo Inserted into games, $YEAR $ROUND $WINNER_ID $OPPONENT_ID $WINNERGOALS $OPPONENTGOALS
+      fi
+    fi
+  fi
+done 
